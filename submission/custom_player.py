@@ -12,7 +12,7 @@ class CustomPlayer(BasePokerPlayer):
     
     def __init__(self):
         # initialize ensemble of players
-        self.players = [EvolutionPlayer(), CFRPlayer(), AlphaPlayer(model="alphapoker/models/pretrain_data_50round_500games_naivplayer100_8epoch.pth.tar"), NaivePlayer()]
+        self.players = [EvolutionPlayer(), CFRPlayer(), AlphaPlayer(model="alphapoker/models/both_ofem.pth.tar"), NaivePlayer()]
         self.names = ["Evolutionary", "CFRPlayer", "AlphaPlayer", "Naive"]
         self.n = len(self.players)
         
