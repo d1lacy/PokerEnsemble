@@ -1,7 +1,9 @@
 from CFR.CFR import CFRPlayer
+from evolutionary.evolutionplayer import EvolutionPlayer
 from Others.raise_player import RaisedPlayer
 from Others.naiveplayer import NaivePlayer
 from pypokerengine.players import BasePokerPlayer
+from alphapoker.alphaplayer import AlphaPlayer
 import numpy as np
 
 
@@ -10,8 +12,8 @@ class CustomPlayer(BasePokerPlayer):
     
     def __init__(self):
         # initialize ensemble of players
-        self.players = [CFRPlayer(), RaisedPlayer(), NaivePlayer()]
-        self.names = ["CFRPlayer", "RaisedPlayer", "NaivePlayer"]
+        self.players = [EvolutionPlayer(), CFRPlayer(), AlphaPlayer(model="alphapoker/models/pretrain_data_50round_500games_naivplayer100_8epoch.pth.tar")]
+        self.names = ["Evolutionary", "CFRPlayer", "AlphaPlayer"]
         self.n = len(self.players)
         
         # Initialize counts and means for each player
@@ -24,23 +26,24 @@ class CustomPlayer(BasePokerPlayer):
         self.curr_index = 0
 
         # initialize round count and stack to track new rounds
-        self.round_count = 1
+        self.round_count = 0
         self.stack = 1000
         self.setup = False
+        self.played = False
 
 
     def declare_action(self, valid_actions, hole_card, round_state):
         # set up for game start:
         state_rc = round_state['round_count']
-        if not self.setup:
-            uuid = self.uuid
-            for player in self.players:
-                player.uuid = uuid
+        uuid = self.uuid
+        for player in self.players:
+            player.uuid = uuid
+        self.setup = True
 
         # handle a new round
-        if self.round_count != state_rc or not self.setup:
+        if self.round_count != state_rc:
             # update previous round (if any)
-            if state_rc > 1:
+            if self.played:
                 for seat in round_state['seats']:
                     if seat['uuid'] == self.uuid:
                         end_stack = seat['stack']
@@ -55,8 +58,8 @@ class CustomPlayer(BasePokerPlayer):
                 self.sq_sums[i] += reward**2
 
             # get a new player to play the new round
-            if self.round_count < self.n + 1:
-                self.curr_index = self.round_count - 1
+            if state_rc < self.n + 1:
+                self.curr_index = state_rc - 1
 
             else:
                 # Thompson Sampling
@@ -71,8 +74,10 @@ class CustomPlayer(BasePokerPlayer):
                         samples.append(np.random.normal(mean, std))
                 self.curr_index = int(np.argmax(samples))
             
-            self.round_count += 1
+            self.setup = True
+            self.round_count = state_rc
             self.curr_player = self.players[self.curr_index]
+            self.played = True
             print(f"\t **** Round {state_rc}: Player {self.names[self.curr_index]}")
 
 
