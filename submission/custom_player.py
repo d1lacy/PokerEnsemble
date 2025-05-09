@@ -12,8 +12,8 @@ class CustomPlayer(BasePokerPlayer):
     
     def __init__(self):
         # initialize ensemble of players
-        self.players = [EvolutionPlayer(), CFRPlayer(), AlphaPlayer(model="alphapoker/models/pretrain_data_50round_500games_naivplayer100_8epoch.pth.tar")]
-        self.names = ["Evolutionary", "CFRPlayer", "AlphaPlayer"]
+        self.players = [EvolutionPlayer(), CFRPlayer(), AlphaPlayer(model="alphapoker/models/pretrain_data_50round_500games_naivplayer100_8epoch.pth.tar"), NaivePlayer()]
+        self.names = ["Evolutionary", "CFRPlayer", "AlphaPlayer", "Naive"]
         self.n = len(self.players)
         
         # Initialize counts and means for each player
@@ -35,11 +35,15 @@ class CustomPlayer(BasePokerPlayer):
     def declare_action(self, valid_actions, hole_card, round_state):
 
         # set up for game start:
+        uuid = self.uuid
+        for player in self.players:
+            player.uuid = uuid
+    
         state_rc = round_state['round_count']
         if state_rc <= 1 and self.new_game:
-            uuid = self.uuid
-            for player in self.players:
-                player.uuid = uuid
+            self.counts = np.zeros(self.n)
+            self.sums = np.zeros(self.n)
+            self.sq_sums = np.zeros(self.n)
             self.round_count = 0
             self.stack = 1000
             self.played = False
