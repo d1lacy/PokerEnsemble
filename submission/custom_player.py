@@ -29,19 +29,25 @@ class CustomPlayer(BasePokerPlayer):
         self.round_count = 0
         self.stack = 1000
         self.played = False
+        self.new_game = True
 
 
     def declare_action(self, valid_actions, hole_card, round_state):
 
         # set up for game start:
         state_rc = round_state['round_count']
-        if state_rc == 1:
+        if state_rc <= 1 and self.new_game:
             uuid = self.uuid
             for player in self.players:
                 player.uuid = uuid
             self.round_count = 0
             self.stack = 1000
             self.played = False
+            self.new_game = False
+            print("New game started")
+
+        if state_rc == 2:
+            self.new_game = True
         
 
         # handle a new round
@@ -105,3 +111,6 @@ class CustomPlayer(BasePokerPlayer):
 
     def receive_round_result_message(self, winners, hand_info, round_state):
         pass
+
+def setup_ai():
+    return CustomPlayer()

@@ -26,9 +26,13 @@ def seeded(seed):
     finally:
         random.setstate(prev)
 
-class FakePlayer():
+class FakePlayer(BasePokerPlayer):
     def __init__(self):
         self.uuid = None
+
+    def declare_action(self, valid_actions, hole_card, round_state):
+        # This is a dummy player, so we don't need to implement this method
+        return "fold"
 
 # Game ended is where you return reward, so it doesn't really have to be -1 or 1. Might have to change code tho
 # From a quick look probably can do r > 1, but we'll see
