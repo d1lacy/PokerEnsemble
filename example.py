@@ -7,13 +7,13 @@ from evolutionary.evolutionplayer import EvolutionPlayer
 from tqdm import tqdm
 
 #TODO:config the config as our wish
-config = setup_config(max_round=500, initial_stack=1000, small_blind_amount=10)
+config = setup_config(max_round=10, initial_stack=1000, small_blind_amount=10)
 
-# config.register_player(name="CustomPlayer", algorithm=CustomPlayer())
-# config.register_player(name="NaivePlayer", algorithm=NaivePlayer())
+config.register_player(name="CustomPlayer", algorithm=CustomPlayer())
+config.register_player(name="NaivePlayer", algorithm=NaivePlayer())
 # config.register_player(name="CFRPlayer", algorithm=CFRPlayer())
-config.register_player(name="AlphaPlayer", algorithm=AlphaPlayer(model="alphapoker/models/pretrain_data_50round_500games_naivplayer100_8epoch.pth.tar"))
-config.register_player(name="EvolutionPlayer", algorithm=EvolutionPlayer())
+# config.register_player(name="AlphaPlayer", algorithm=AlphaPlayer(model="alphapoker/models/pretrain_data_50round_500games_naivplayer100_8epoch.pth.tar"))
+# config.register_player(name="EvolutionPlayer", algorithm=EvolutionPlayer())
 
 num_games = 10
 winner_count = {}

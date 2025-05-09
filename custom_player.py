@@ -28,17 +28,21 @@ class CustomPlayer(BasePokerPlayer):
         # initialize round count and stack to track new rounds
         self.round_count = 0
         self.stack = 1000
-        self.setup = False
         self.played = False
 
 
     def declare_action(self, valid_actions, hole_card, round_state):
+
         # set up for game start:
         state_rc = round_state['round_count']
-        uuid = self.uuid
-        for player in self.players:
-            player.uuid = uuid
-        self.setup = True
+        if state_rc == 1:
+            uuid = self.uuid
+            for player in self.players:
+                player.uuid = uuid
+            self.round_count = 0
+            self.stack = 1000
+            self.played = False
+        
 
         # handle a new round
         if self.round_count != state_rc:
@@ -52,6 +56,7 @@ class CustomPlayer(BasePokerPlayer):
                 self.stack = end_stack
 
                 # update
+                print(f"Player {self.names[self.curr_index]}: {reward}")
                 i = self.curr_index
                 self.counts[i] += 1
                 self.sums[i] += reward
@@ -74,10 +79,11 @@ class CustomPlayer(BasePokerPlayer):
                         samples.append(np.random.normal(mean, std))
                 self.curr_index = int(np.argmax(samples))
             
-            self.setup = True
-            self.round_count = state_rc
-            self.curr_player = self.players[self.curr_index]
             self.played = True
+            self.round_count = state_rc
+            
+            self.curr_player = self.players[self.curr_index]
+
             print(f"\t **** Round {state_rc}: Player {self.names[self.curr_index]}")
 
 
