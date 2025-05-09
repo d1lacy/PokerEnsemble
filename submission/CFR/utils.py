@@ -50,7 +50,7 @@ def pot_stack_values(state, uuid):
     
     SPR = effective_stack / pot if pot > 0 else float("inf")
 
-    spr_cat = get_bucket(SPR, [1, 2, 5, 10, 20])
+    spr_cat = get_bucket(SPR, [0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 10])
 
     return spr_cat, is_shorter_stack
 
@@ -59,15 +59,15 @@ def get_info_set_key(hole, state, legal_actions, uuid):
 
     # street
     street = state["street"]
-    if street not in ["preflop", "flop", "turn", "river", "showdown", "finished"]:
-        raise ValueError(f"Invalid street: {street}")
     street_mapping = {'preflop': 0, 'flop': 1, 'turn': 2, 'river': 3, 'showdown': 4, 'finished': 5}
     street = street_mapping.get(street)
 
     # win rate
     community = state["community_card"]
+
+    # NOTE: change to gen_cards(hole) for the final version
     win_rate = estimate_hole_card_win_rate(100, 2, gen_cards(hole), gen_cards(community))
-    win_rate_bucket = get_bucket(win_rate, [0.2, 0.4, 0.6, 0.8])
+    win_rate_bucket = get_bucket(win_rate, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
 
     # texture
     texture = classify_board(community)
@@ -78,11 +78,10 @@ def get_info_set_key(hole, state, legal_actions, uuid):
     # raise allowed flag
     raise_allowed = int(legal_actions > 2)
 
-    # TODO - incorporate action history?
-
     key = f"{street}{texture}{win_rate_bucket}{spr_cat}{is_shorter_stack}{raise_allowed}"
 
-    # NOTE: there are up to 5 * 5 * 5 * 6 * 2 * 2 = 3000 information sets 
+    # NOTE: there are up to 5 * 3 * 10 * 10 * 2 * 2 = 6000 unique information sets
+    ## in practice there are fewer than 6000 because some keys combinations are not possible
     return key
 
 
